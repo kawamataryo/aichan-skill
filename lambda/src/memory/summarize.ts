@@ -1,4 +1,4 @@
-import { generateText, generateObject, jsonSchema } from "ai";
+import { generateText, Output, jsonSchema } from "ai";
 import { getModel } from "../ai/registry";
 
 export interface SummarizeResult {
@@ -13,25 +13,27 @@ export async function summarizeConversation(
     .map((m) => `${m.role === "user" ? "ユーザー" : "AI"}: ${m.content}`)
     .join("\n");
 
-  const { object } = await generateObject({
+  const { output } = await generateText({
     model: getModel(),
     maxOutputTokens: 1000,
-    schema: jsonSchema<SummarizeResult>({
-      type: "object",
-      properties: {
-        summary: {
-          type: "string",
-          description:
-            "会話の簡潔な要約。ユーザーの興味・関心、具体的な事実を優先的に残す。箇条書きではなく短い文章で。",
+    output: Output.object({
+      schema: jsonSchema<SummarizeResult>({
+        type: "object",
+        properties: {
+          summary: {
+            type: "string",
+            description:
+              "会話の簡潔な要約。ユーザーの興味・関心、具体的な事実を優先的に残す。箇条書きではなく短い文章で。",
+          },
+          profileUpdates: {
+            type: "object",
+            additionalProperties: { type: "string" },
+            description:
+              "会話から判明したユーザーの個人情報（名前、住所、趣味、職業、年齢、家族構成、好きなものなど）をキーと値のペアで抽出。該当なしなら空オブジェクト。キーは日本語（例: 名前、住所、趣味）。",
+          },
         },
-        profileUpdates: {
-          type: "object",
-          additionalProperties: { type: "string" },
-          description:
-            "会話から判明したユーザーの個人情報（名前、住所、趣味、職業、年齢、家族構成、好きなものなど）をキーと値のペアで抽出。該当なしなら空オブジェクト。キーは日本語（例: 名前、住所、趣味）。",
-        },
-      },
-      required: ["summary", "profileUpdates"],
+        required: ["summary", "profileUpdates"],
+      }),
     }),
     prompt: `以下の会話を分析してください。
 
@@ -42,7 +44,7 @@ export async function summarizeConversation(
 ${transcript}`,
   });
 
-  return object;
+  return output!;
 }
 
 export async function consolidateMemories(
