@@ -3,6 +3,7 @@ import type { RequestHandler } from "ask-sdk-core";
 import { generateAIResponse } from "../ai/generate";
 import { summarizeConversation } from "../memory/summarize";
 import { saveMemory } from "../memory/memoryService";
+import { getUserId } from "../util/getUserId";
 
 import { fastSpeech, randomFarewell } from "../speech";
 
@@ -18,6 +19,7 @@ export const AskAIIntentHandler: RequestHandler = {
   async handle(handlerInput) {
     const query = Alexa.getSlotValue(handlerInput.requestEnvelope, "query") ?? "";
     const attributes = handlerInput.attributesManager.getSessionAttributes();
+    const userId: string = attributes.userId ?? getUserId(handlerInput.requestEnvelope);
 
     const conversationHistory: Array<{ role: "user" | "assistant"; content: string }> =
       attributes.conversationHistory ?? [];
@@ -33,7 +35,7 @@ export const AskAIIntentHandler: RequestHandler = {
 
         try {
           const summary = await summarizeConversation(conversationHistory);
-          await saveMemory(summary);
+          await saveMemory(userId, summary);
         } catch (error) {
           console.error("Memory save error:", error);
         }

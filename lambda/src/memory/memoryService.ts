@@ -3,14 +3,17 @@ import { consolidateMemories } from "./summarize";
 
 const s3 = new S3Client({});
 const BUCKET = process.env.MEMORY_BUCKET!;
-const KEY = "memories.txt";
+
+function getMemoryKey(userId: string): string {
+  return `memories/${userId}.txt`;
+}
 const SECTION_SEPARATOR = "\n---\n";
 const MAX_RECENT_SECTIONS = 10;
 const MAX_PROMPT_CHARS = 4000;
 
-export async function loadMemories(): Promise<string | null> {
+export async function loadMemories(userId: string): Promise<string | null> {
   try {
-    const res = await s3.send(new GetObjectCommand({ Bucket: BUCKET, Key: KEY }));
+    const res = await s3.send(new GetObjectCommand({ Bucket: BUCKET, Key: getMemoryKey(userId) }));
     return (await res.Body?.transformToString("utf-8")) ?? null;
   } catch (e: unknown) {
     if ((e as { name?: string }).name === "NoSuchKey") return null;
@@ -47,8 +50,8 @@ function buildMemoryText(longTermMemory: string | null, recentSections: string[]
   return parts.join(SECTION_SEPARATOR);
 }
 
-export async function saveMemory(summary: string): Promise<void> {
-  const existing = await loadMemories();
+export async function saveMemory(userId: string, summary: string): Promise<void> {
+  const existing = await loadMemories(userId);
   const { longTermMemory, recentSections } = existing
     ? parseSections(existing)
     : { longTermMemory: null, recentSections: [] };
@@ -69,7 +72,7 @@ export async function saveMemory(summary: string): Promise<void> {
   await s3.send(
     new PutObjectCommand({
       Bucket: BUCKET,
-      Key: KEY,
+      Key: getMemoryKey(userId),
       Body: finalText,
       ContentType: "text/plain; charset=utf-8",
     }),

@@ -2,6 +2,7 @@ import Alexa from "ask-sdk-core";
 import type { RequestHandler } from "ask-sdk-core";
 import { summarizeConversation } from "../memory/summarize";
 import { saveMemory } from "../memory/memoryService";
+import { getUserId } from "../util/getUserId";
 
 export const SessionEndedRequestHandler: RequestHandler = {
   canHandle(handlerInput) {
@@ -9,6 +10,7 @@ export const SessionEndedRequestHandler: RequestHandler = {
   },
   async handle(handlerInput) {
     const attributes = handlerInput.attributesManager.getSessionAttributes();
+    const userId: string = attributes.userId ?? getUserId(handlerInput.requestEnvelope);
     const conversationHistory: Array<{ role: string; content: string }> =
       attributes.conversationHistory ?? [];
 
@@ -16,7 +18,7 @@ export const SessionEndedRequestHandler: RequestHandler = {
     if (conversationHistory.length > 0) {
       try {
         const summary = await summarizeConversation(conversationHistory);
-        await saveMemory(summary);
+        await saveMemory(userId, summary);
       } catch (error) {
         console.error("Memory save error:", error);
       }
