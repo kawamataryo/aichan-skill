@@ -1,6 +1,6 @@
 import { generateText } from "ai";
 import type { CoreMessage } from "ai";
-import { SYSTEM_PROMPT } from "./prompts";
+import { buildSystemPrompt } from "./prompts";
 import { webSearchTool, createEndSessionTool } from "./tools";
 import { getModel } from "./registry";
 
@@ -23,7 +23,7 @@ export async function generateAIResponse(
 
   let shouldEndSession = false;
 
-  let systemPrompt = SYSTEM_PROMPT;
+  let systemPrompt = buildSystemPrompt();
   if (memories) {
     systemPrompt += `\n\n## 過去の会話の記憶\n${memories}`;
   }
