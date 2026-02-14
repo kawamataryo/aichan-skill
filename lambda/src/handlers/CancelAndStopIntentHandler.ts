@@ -2,6 +2,7 @@ import Alexa from "ask-sdk-core";
 import type { RequestHandler } from "ask-sdk-core";
 import { summarizeConversation } from "../memory/summarize";
 import { saveMemory } from "../memory/memoryService";
+import { fastSpeech } from "../speech";
 
 export const CancelAndStopIntentHandler: RequestHandler = {
   canHandle(handlerInput) {
@@ -20,8 +21,8 @@ export const CancelAndStopIntentHandler: RequestHandler = {
       try {
         const summary = await summarizeConversation(conversationHistory);
         await saveMemory(summary);
-      } catch {
-        // 記憶保存失敗時は無視
+      } catch (error) {
+        console.error("Memory save error:", error);
       }
       // 二重保存防止
       attributes.conversationHistory = [];
@@ -29,7 +30,7 @@ export const CancelAndStopIntentHandler: RequestHandler = {
     }
 
     return handlerInput.responseBuilder
-      .speak("さようなら")
+      .speak(fastSpeech("さようなら"))
       .withShouldEndSession(true)
       .getResponse();
   },

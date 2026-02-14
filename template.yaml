@@ -2,6 +2,24 @@ AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: Alexa AI Skill with Multi-Provider Support
 
+Parameters:
+  GoogleApiKey:
+    Type: String
+    Default: ""
+    NoEcho: true
+  OpenAIApiKey:
+    Type: String
+    Default: ""
+    NoEcho: true
+  AnthropicApiKey:
+    Type: String
+    Default: ""
+    NoEcho: true
+  TavilyApiKey:
+    Type: String
+    Default: ""
+    NoEcho: true
+
 Globals:
   Function:
     Timeout: 30
@@ -32,10 +50,10 @@ Resources:
       Environment:
         Variables:
           AI_MODEL: "google:gemini-2.5-flash"
-          GOOGLE_GENERATIVE_AI_API_KEY: ""
-          OPENAI_API_KEY: ""
-          ANTHROPIC_API_KEY: ""
-          TAVILY_API_KEY: ""
+          GOOGLE_GENERATIVE_AI_API_KEY: !Ref GoogleApiKey
+          OPENAI_API_KEY: !Ref OpenAIApiKey
+          ANTHROPIC_API_KEY: !Ref AnthropicApiKey
+          TAVILY_API_KEY: !Ref TavilyApiKey
           MEMORY_BUCKET: !Ref MemoryBucket
       Policies:
         - S3CrudPolicy:

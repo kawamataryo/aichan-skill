@@ -4,6 +4,8 @@ import { generateAIResponse } from "../ai/generate";
 import { summarizeConversation } from "../memory/summarize";
 import { saveMemory } from "../memory/memoryService";
 
+import { fastSpeech } from "../speech";
+
 const MAX_HISTORY_TURNS = 5;
 
 export const AskAIIntentHandler: RequestHandler = {
@@ -34,8 +36,8 @@ export const AskAIIntentHandler: RequestHandler = {
         try {
           const summary = await summarizeConversation(conversationHistory);
           await saveMemory(summary);
-        } catch {
-          // 記憶保存失敗時は無視
+        } catch (error) {
+          console.error("Memory save error:", error);
         }
 
         // 二重保存防止: conversationHistory をクリア
@@ -43,7 +45,7 @@ export const AskAIIntentHandler: RequestHandler = {
         handlerInput.attributesManager.setSessionAttributes(attributes);
 
         return handlerInput.responseBuilder
-          .speak(result.text || "さようなら")
+          .speak(fastSpeech(result.text || "さようなら"))
           .withShouldEndSession(true)
           .getResponse();
       }
@@ -55,8 +57,8 @@ export const AskAIIntentHandler: RequestHandler = {
         handlerInput.attributesManager.setSessionAttributes(attributes);
 
         return handlerInput.responseBuilder
-          .speak(result.text)
-          .reprompt("何でも聞いてください。")
+          .speak(fastSpeech(result.text))
+          .reprompt(fastSpeech("何でも聞いてください。"))
           .getResponse();
       }
 
@@ -68,13 +70,14 @@ export const AskAIIntentHandler: RequestHandler = {
       handlerInput.attributesManager.setSessionAttributes(attributes);
 
       return handlerInput.responseBuilder
-        .speak(result.text)
-        .reprompt("他に何か聞きたいことはありますか？")
+        .speak(fastSpeech(result.text))
+        .reprompt(fastSpeech("他に何か聞きたいことはありますか？"))
         .getResponse();
-    } catch {
+    } catch (error) {
+      console.error("AskAIIntent error:", error);
       return handlerInput.responseBuilder
-        .speak("すみません、うまく回答できませんでした。もう一度お試しください。")
-        .reprompt("もう一度質問してください。")
+        .speak(fastSpeech("すみません、うまく回答できませんでした。もう一度お試しください。"))
+        .reprompt(fastSpeech("もう一度質問してください。"))
         .getResponse();
     }
   },

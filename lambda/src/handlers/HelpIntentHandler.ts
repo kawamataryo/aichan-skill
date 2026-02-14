@@ -1,5 +1,6 @@
 import Alexa from "ask-sdk-core";
 import type { RequestHandler } from "ask-sdk-core";
+import { fastSpeech } from "../speech";
 
 export const HelpIntentHandler: RequestHandler = {
   canHandle(handlerInput) {
@@ -13,8 +14,8 @@ export const HelpIntentHandler: RequestHandler = {
       "このスキルでは、AIに何でも質問できます。例えば「日本の首都はどこ」や「量子コンピュータについて教えて」のように話しかけてください。GPTやクロードに切り替えることもできます。";
 
     return handlerInput.responseBuilder
-      .speak(speechText)
-      .reprompt(speechText)
+      .speak(fastSpeech(speechText))
+      .reprompt(fastSpeech(speechText))
       .getResponse();
   },
 };

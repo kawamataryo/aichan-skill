@@ -17,8 +17,8 @@ export const SessionEndedRequestHandler: RequestHandler = {
       try {
         const summary = await summarizeConversation(conversationHistory);
         await saveMemory(summary);
-      } catch {
-        // 記憶保存失敗時は無視
+      } catch (error) {
+        console.error("Memory save error:", error);
       }
     }
 
