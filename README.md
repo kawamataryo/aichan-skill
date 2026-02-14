@@ -7,7 +7,7 @@ Web 検索、S3 を使った会話メモリをサポート。
 
 - Vercel AI SDK によるAI応答（デプロイ時にモデル・プロバイダーを選択可能）
 - Tavily API を使った Web 検索
-- 会話内容の要約を S3 に保存し、次回応答に反映
+- ユーザーごとの会話記憶を S3 に保存し、次回応答に反映
 - SSML を使った読み上げ速度の調整
 
 ## アーキテクチャ
@@ -85,13 +85,16 @@ make deploy
     │   ├── generate.ts
     │   ├── prompts.ts
     │   └── tools.ts
-    └── memory/
-        ├── memoryService.ts
-        └── summarize.ts
+    ├── memory/
+    │   ├── memoryService.ts
+    │   └── summarize.ts
+    └── util/
+        └── getUserId.ts
 ```
 
 ## メモリの仕組み
 
-- セッション終了時に会話を要約して S3 の `memories.txt` に保存
+- ユーザーごとに S3 の `memories/{userId}.txt` へ会話要約を保存
+- ユーザー識別: `personId`（音声プロファイル）> `userId`（アカウント）> `_shared`（フォールバック）
 - 次回起動時に保存内容をプロンプトへ注入
 - 直近 10 セッションを保持し、超過分は長期記憶として統合
