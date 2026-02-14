@@ -1,7 +1,12 @@
 import { generateText } from "ai";
 import type { CoreMessage } from "ai";
 import { SYSTEM_PROMPT } from "./prompts";
-import { webSearchTool, createSwitchModelTool, createGetCurrentModelTool, createEndSessionTool } from "./tools";
+import {
+  webSearchTool,
+  createSwitchModelTool,
+  createGetCurrentModelTool,
+  createEndSessionTool,
+} from "./tools";
 import { getModel } from "./registry";
 
 const DEFAULT_MODEL = "google:gemini-2.5-flash";
@@ -16,7 +21,7 @@ export async function generateAIResponse(
   query: string,
   conversationHistory: Array<{ role: string; content: string }>,
   modelId?: string,
-  memories?: string
+  memories?: string,
 ): Promise<AIResponse> {
   const messages: CoreMessage[] = conversationHistory.map((msg) => ({
     role: msg.role as "user" | "assistant",

@@ -4,7 +4,7 @@ import { getModel } from "../ai/registry";
 const SUMMARIZE_MODEL = "google:gemini-2.5-flash";
 
 export async function summarizeConversation(
-  conversationHistory: Array<{ role: string; content: string }>
+  conversationHistory: Array<{ role: string; content: string }>,
 ): Promise<string> {
   const transcript = conversationHistory
     .map((m) => `${m.role === "user" ? "ユーザー" : "AI"}: ${m.content}`)
@@ -28,11 +28,9 @@ ${transcript}
 
 export async function consolidateMemories(
   longTermMemory: string | null,
-  oldSections: string[]
+  oldSections: string[],
 ): Promise<string> {
-  const existingPart = longTermMemory
-    ? `既存の長期記憶:\n${longTermMemory}\n\n`
-    : "";
+  const existingPart = longTermMemory ? `既存の長期記憶:\n${longTermMemory}\n\n` : "";
   const sectionsPart = oldSections.join("\n---\n");
 
   const { text } = await generateText({

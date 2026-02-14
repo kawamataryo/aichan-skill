@@ -1,6 +1,6 @@
 import Alexa from "ask-sdk-core";
 import type { RequestHandler } from "ask-sdk-core";
-import { MODEL_ALIASES, getDisplayName } from "../ai/registry";
+import { MODEL_ALIASES } from "../ai/registry";
 
 export const SwitchModelIntentHandler: RequestHandler = {
   canHandle(handlerInput) {

@@ -30,7 +30,10 @@ function formatJSTDate(): string {
 }
 
 function parseSections(text: string): { longTermMemory: string | null; recentSections: string[] } {
-  const parts = text.split(SECTION_SEPARATOR).map((s) => s.trim()).filter(Boolean);
+  const parts = text
+    .split(SECTION_SEPARATOR)
+    .map((s) => s.trim())
+    .filter(Boolean);
   if (parts.length === 0) return { longTermMemory: null, recentSections: [] };
 
   if (parts[0].startsWith("[長期記憶]")) {
@@ -46,7 +49,9 @@ function buildMemoryText(longTermMemory: string | null, recentSections: string[]
 
 export async function saveMemory(summary: string): Promise<void> {
   const existing = await loadMemories();
-  const { longTermMemory, recentSections } = existing ? parseSections(existing) : { longTermMemory: null, recentSections: [] };
+  const { longTermMemory, recentSections } = existing
+    ? parseSections(existing)
+    : { longTermMemory: null, recentSections: [] };
 
   const newSection = `[${formatJSTDate()}]\n${summary}`;
   recentSections.push(newSection);
@@ -61,7 +66,14 @@ export async function saveMemory(summary: string): Promise<void> {
   }
 
   const finalText = buildMemoryText(updatedLongTerm, updatedRecent);
-  await s3.send(new PutObjectCommand({ Bucket: BUCKET, Key: KEY, Body: finalText, ContentType: "text/plain; charset=utf-8" }));
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: BUCKET,
+      Key: KEY,
+      Body: finalText,
+      ContentType: "text/plain; charset=utf-8",
+    }),
+  );
 }
 
 export function trimMemoriesForPrompt(memories: string): string {
@@ -85,5 +97,7 @@ export function trimMemoriesForPrompt(memories: string): string {
     }
   }
 
-  return longTermMemory ? longTermMemory.slice(0, MAX_PROMPT_CHARS) : memories.slice(0, MAX_PROMPT_CHARS);
+  return longTermMemory
+    ? longTermMemory.slice(0, MAX_PROMPT_CHARS)
+    : memories.slice(0, MAX_PROMPT_CHARS);
 }

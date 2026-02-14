@@ -7,9 +7,7 @@ export function createSwitchModelTool(onSwitch: (modelId: string) => void) {
     description:
       "AIモデルを切り替えます。ユーザーがGemini、GPT、Claudeなど別のモデルに切り替えたい・変えたい・使いたいと言った場合に使用してください。",
     parameters: z.object({
-      model: z
-        .enum(["ジェミニ", "GPT", "クロード"])
-        .describe("切り替え先のモデル名"),
+      model: z.enum(["ジェミニ", "GPT", "クロード"]).describe("切り替え先のモデル名"),
     }),
     execute: async ({ model }) => {
       const alias = MODEL_ALIASES[model];

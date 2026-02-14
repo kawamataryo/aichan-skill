@@ -1,0 +1,10 @@
+pre-commit:
+  commands:
+    lint:
+      glob: "*.{js,ts,tsx}"
+      run: npx oxlint {staged_files}
+    format:
+      glob: "*.{js,ts,tsx}"
+      run: npx oxfmt --check {staged_files}
+    typecheck:
+      run: cd lambda && npx tsgo --noEmit
