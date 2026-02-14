@@ -17,8 +17,8 @@ export const SessionEndedRequestHandler: RequestHandler = {
     // 上流でクリア済みならスキップ
     if (conversationHistory.length > 0) {
       try {
-        const summary = await summarizeConversation(conversationHistory);
-        await saveMemory(userId, summary);
+        const { summary, profileUpdates } = await summarizeConversation(conversationHistory);
+        await saveMemory(userId, summary, profileUpdates);
       } catch (error) {
         console.error("Memory save error:", error);
       }

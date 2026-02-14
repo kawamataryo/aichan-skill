@@ -14,6 +14,7 @@ export async function generateAIResponse(
   conversationHistory: Array<{ role: string; content: string }>,
   memories?: string,
   userName?: string,
+  profile?: string,
 ): Promise<AIResponse> {
   const messages: ModelMessage[] = conversationHistory.map((msg) => ({
     role: msg.role as "user" | "assistant",
@@ -25,6 +26,9 @@ export async function generateAIResponse(
   let shouldEndSession = false;
 
   let systemPrompt = buildSystemPrompt(userName);
+  if (profile) {
+    systemPrompt += `\n\n## ユーザープロファイル\n${profile}`;
+  }
   if (memories) {
     systemPrompt += `\n\n## 過去の会話の記憶\n${memories}`;
   }

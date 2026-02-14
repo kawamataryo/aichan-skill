@@ -25,9 +25,16 @@ export const AskAIIntentHandler: RequestHandler = {
       attributes.conversationHistory ?? [];
     const memories: string | undefined = attributes.memories;
     const userName: string | undefined = attributes.userName;
+    const profile: string | undefined = attributes.profile;
 
     try {
-      const result = await generateAIResponse(query, conversationHistory, memories, userName);
+      const result = await generateAIResponse(
+        query,
+        conversationHistory,
+        memories,
+        userName,
+        profile,
+      );
 
       // セッション終了
       if (result.shouldEndSession) {
@@ -35,8 +42,8 @@ export const AskAIIntentHandler: RequestHandler = {
         conversationHistory.push({ role: "assistant", content: result.text });
 
         try {
-          const summary = await summarizeConversation(conversationHistory);
-          await saveMemory(userId, summary);
+          const { summary, profileUpdates } = await summarizeConversation(conversationHistory);
+          await saveMemory(userId, summary, profileUpdates);
         } catch (error) {
           console.error("Memory save error:", error);
         }

@@ -43,16 +43,19 @@ export const LaunchRequestHandler: RequestHandler = {
     const userId = getUserId(handlerInput.requestEnvelope);
     attributes.userId = userId;
 
-    const [memories, userName] = await Promise.all([
+    const [loaded, userName] = await Promise.all([
       loadMemories(userId).catch((error) => {
         console.error("Memory load error:", error);
-        return null;
+        return { profile: null, memories: null };
       }),
       fetchUserName(handlerInput.requestEnvelope),
     ]);
 
-    if (memories) {
-      attributes.memories = trimMemoriesForPrompt(memories);
+    if (loaded.memories) {
+      attributes.memories = trimMemoriesForPrompt(loaded.memories);
+    }
+    if (loaded.profile) {
+      attributes.profile = loaded.profile;
     }
     if (userName) {
       attributes.userName = userName;

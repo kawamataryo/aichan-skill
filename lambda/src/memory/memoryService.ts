@@ -11,7 +11,12 @@ const SECTION_SEPARATOR = "\n---\n";
 const MAX_RECENT_SECTIONS = 10;
 const MAX_PROMPT_CHARS = 4000;
 
-export async function loadMemories(userId: string): Promise<string | null> {
+export interface LoadedMemories {
+  profile: string | null;
+  memories: string | null;
+}
+
+async function loadRaw(userId: string): Promise<string | null> {
   try {
     const res = await s3.send(new GetObjectCommand({ Bucket: BUCKET, Key: getMemoryKey(userId) }));
     return (await res.Body?.transformToString("utf-8")) ?? null;
@@ -19,6 +24,14 @@ export async function loadMemories(userId: string): Promise<string | null> {
     if ((e as { name?: string }).name === "NoSuchKey") return null;
     throw e;
   }
+}
+
+export async function loadMemories(userId: string): Promise<LoadedMemories> {
+  const raw = await loadRaw(userId);
+  if (!raw) return { profile: null, memories: null };
+
+  const { profile, rest } = extractProfile(raw);
+  return { profile, memories: rest || null };
 }
 
 function formatJSTDate(): string {
@@ -30,6 +43,49 @@ function formatJSTDate(): string {
   const h = String(jst.getUTCHours()).padStart(2, "0");
   const min = String(jst.getUTCMinutes()).padStart(2, "0");
   return `${y}-${m}-${d} ${h}:${min}`;
+}
+
+function extractProfile(text: string): { profile: string | null; rest: string } {
+  const parts = text
+    .split(SECTION_SEPARATOR)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  if (parts.length > 0 && parts[0].startsWith("[プロファイル]")) {
+    const profileSection = parts[0];
+    const profile = profileSection.replace(/^\[プロファイル\]\n?/, "").trim();
+    const rest = parts.slice(1).join(SECTION_SEPARATOR);
+    return { profile: profile || null, rest };
+  }
+  return { profile: null, rest: text };
+}
+
+export function parseProfile(profileText: string): Record<string, string> {
+  const entries: Record<string, string> = {};
+  for (const line of profileText.split("\n")) {
+    const match = line.match(/^(.+?): (.+)$/);
+    if (match) {
+      entries[match[1]] = match[2];
+    }
+  }
+  return entries;
+}
+
+export function serializeProfile(profile: Record<string, string>): string {
+  return Object.entries(profile)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join("\n");
+}
+
+function mergeProfile(
+  existingProfileText: string | null,
+  updates: Record<string, string>,
+): string | null {
+  if (Object.keys(updates).length === 0 && !existingProfileText) return null;
+  const existing = existingProfileText ? parseProfile(existingProfileText) : {};
+  const merged = { ...existing, ...updates };
+  if (Object.keys(merged).length === 0) return null;
+  return serializeProfile(merged);
 }
 
 function parseSections(text: string): { longTermMemory: string | null; recentSections: string[] } {
@@ -45,15 +101,33 @@ function parseSections(text: string): { longTermMemory: string | null; recentSec
   return { longTermMemory: null, recentSections: parts };
 }
 
-function buildMemoryText(longTermMemory: string | null, recentSections: string[]): string {
-  const parts = longTermMemory ? [longTermMemory, ...recentSections] : recentSections;
+function buildMemoryText(
+  profile: string | null,
+  longTermMemory: string | null,
+  recentSections: string[],
+): string {
+  const parts: string[] = [];
+  if (profile) {
+    parts.push(`[プロファイル]\n${profile}`);
+  }
+  if (longTermMemory) {
+    parts.push(longTermMemory);
+  }
+  parts.push(...recentSections);
   return parts.join(SECTION_SEPARATOR);
 }
 
-export async function saveMemory(userId: string, summary: string): Promise<void> {
-  const existing = await loadMemories(userId);
-  const { longTermMemory, recentSections } = existing
-    ? parseSections(existing)
+export async function saveMemory(
+  userId: string,
+  summary: string,
+  profileUpdates?: Record<string, string>,
+): Promise<void> {
+  const raw = await loadRaw(userId);
+  const { profile: existingProfile, rest } = raw
+    ? extractProfile(raw)
+    : { profile: null, rest: "" };
+  const { longTermMemory, recentSections } = rest
+    ? parseSections(rest)
     : { longTermMemory: null, recentSections: [] };
 
   const newSection = `[${formatJSTDate()}]\n${summary}`;
@@ -68,7 +142,9 @@ export async function saveMemory(userId: string, summary: string): Promise<void>
     updatedLongTerm = await consolidateMemories(longTermMemory, overflow);
   }
 
-  const finalText = buildMemoryText(updatedLongTerm, updatedRecent);
+  const updatedProfile = mergeProfile(existingProfile, profileUpdates ?? {});
+
+  const finalText = buildMemoryText(updatedProfile, updatedLongTerm, updatedRecent);
   await s3.send(
     new PutObjectCommand({
       Bucket: BUCKET,
