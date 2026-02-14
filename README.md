@@ -1,7 +1,7 @@
 # AI Chan
 
-Alexa 上で動作する、音声対話型の AI スキルです。  
-Gemini / GPT / Claude の切り替え、Web 検索、S3 を使った会話メモリをサポートしています。
+Alexa 上で動作する、音声対話型の AI スキル。  
+Gemini / GPT / Claude の切り替え、Web 検索、S3 を使った会話メモリをサポート。
 
 ## 主な機能
 
@@ -41,7 +41,7 @@ make deploy
 
 ## Alexa スキル設定
 
-デプロイ後、[Alexa Developer Console](https://developer.amazon.com/alexa/console/ask) で設定します。
+デプロイ後、[Alexa Developer Console](https://developer.amazon.com/alexa/console/ask) で設定する。
 
 1. スキルを作成（言語: `日本語`、タイプ: `カスタム`、ホスティング: `独自のプロビジョニング`）
 2. 対話モデルに `skill-package/interactionModels/custom/ja-JP.json` の内容を貼り付けて保存・ビルド
