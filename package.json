@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "scripts": {
+    "lint": "oxlint lambda/src",
+    "lint:fix": "oxlint --fix lambda/src",
+    "format": "oxfmt lambda/src",
+    "format:check": "oxfmt --check lambda/src",
+    "typecheck": "cd lambda && tsgo --noEmit"
+  },
+  "devDependencies": {
+    "@typescript/native-preview": "latest",
+    "lefthook": "latest",
+    "oxfmt": "latest",
+    "oxlint": "latest"
+  }
+}

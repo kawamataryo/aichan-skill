@@ -1,0 +1,26 @@
+{
+  "name": "alexa-ai-skill-lambda",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --target=es2022 --outdir=dist",
+    "typecheck": "tsgo --noEmit"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^1",
+    "@ai-sdk/google": "^1",
+    "@ai-sdk/openai": "^1",
+    "@aws-sdk/client-s3": "^3",
+    "ai": "^4",
+    "ask-sdk-core": "^2.14.0",
+    "ask-sdk-model": "^1.86.0",
+    "zod": "^3.23"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8",
+    "@types/node": "latest",
+    "esbuild": "latest",
+    "typescript": "latest"
+  }
+}
