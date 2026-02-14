@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Alexa Skill with Gemini 2.5 Flash
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 256
+
+Resources:
+  GeminiSkillFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/
+      Handler: index.handler
+      Runtime: nodejs20.x
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          GOOGLE_GENERATIVE_AI_API_KEY: ""
+          TAVILY_API_KEY: ""
+      Events:
+        AlexaEndpoint:
+          Type: HttpApi
+          Properties:
+            Path: /alexa
+            Method: POST
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2022
+        Sourcemap: true
+        EntryPoints:
+          - src/index.ts
+
+Outputs:
+  AlexaEndpointUrl:
+    Description: API Gateway endpoint URL for Alexa skill
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/alexa"
+  GeminiSkillFunction:
+    Description: Lambda Function ARN
+    Value: !GetAtt GeminiSkillFunction.Arn

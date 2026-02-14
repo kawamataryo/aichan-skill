@@ -1,0 +1,23 @@
+{
+  "name": "gemini-skill-lambda",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --target=es2022 --outdir=dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "ai": "^4",
+    "@ai-sdk/google": "^1",
+    "ask-sdk-core": "^2.14.0",
+    "ask-sdk-model": "^1.86.0",
+    "zod": "^3.23"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8",
+    "@types/node": "^20",
+    "esbuild": "^0.21",
+    "typescript": "^5.5"
+  }
+}

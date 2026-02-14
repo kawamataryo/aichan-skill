@@ -1,0 +1,37 @@
+{
+  "manifest": {
+    "publishingInformation": {
+      "locales": {
+        "ja-JP": {
+          "summary": "Geminiに質問できるスキル",
+          "examplePhrases": [
+            "アレクサ、ジェミニを開いて",
+            "アレクサ、ジェミニに聞いて",
+            "アレクサ、ジェミニで調べて"
+          ],
+          "name": "Gemini スキル",
+          "description": "Google Gemini 2.5 Flash を使ってAIに質問できるAlexaスキルです。"
+        }
+      },
+      "isAvailableWorldwide": false,
+      "testingInstructions": "Sample testing instructions.",
+      "category": "KNOWLEDGE_AND_TRIVIA",
+      "distributionCountries": ["JP"]
+    },
+    "apis": {
+      "custom": {
+        "endpoint": {
+          "uri": "https://YOUR_API_GATEWAY_ENDPOINT/alexa"
+        }
+      }
+    },
+    "manifestVersion": "1.0",
+    "privacyAndCompliance": {
+      "allowsPurchases": false,
+      "isExportCompliant": true,
+      "containsAds": false,
+      "isChildDirected": false,
+      "usesPersonalInfo": false
+    }
+  }
+}
