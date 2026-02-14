@@ -4,7 +4,7 @@ import { generateAIResponse } from "../ai/generate";
 import { summarizeConversation } from "../memory/summarize";
 import { saveMemory } from "../memory/memoryService";
 
-import { fastSpeech } from "../speech";
+import { fastSpeech, randomFarewell } from "../speech";
 
 const MAX_HISTORY_TURNS = 5;
 
@@ -45,7 +45,7 @@ export const AskAIIntentHandler: RequestHandler = {
         handlerInput.attributesManager.setSessionAttributes(attributes);
 
         return handlerInput.responseBuilder
-          .speak(fastSpeech(result.text || "さようなら"))
+          .speak(fastSpeech(result.text || randomFarewell()))
           .withShouldEndSession(true)
           .getResponse();
       }

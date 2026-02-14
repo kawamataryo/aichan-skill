@@ -1,7 +1,7 @@
 import Alexa from "ask-sdk-core";
 import type { RequestHandler } from "ask-sdk-core";
 import { loadMemories, trimMemoriesForPrompt } from "../memory/memoryService";
-import { fastSpeech } from "../speech";
+import { fastSpeech, randomGreeting } from "../speech";
 
 export const LaunchRequestHandler: RequestHandler = {
   canHandle(handlerInput) {
@@ -22,7 +22,7 @@ export const LaunchRequestHandler: RequestHandler = {
     }
     handlerInput.attributesManager.setSessionAttributes(attributes);
 
-    const speechText = "何でも聞いてください。";
+    const speechText = randomGreeting();
 
     return handlerInput.responseBuilder
       .speak(fastSpeech(speechText))

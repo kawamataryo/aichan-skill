@@ -2,7 +2,7 @@ import Alexa from "ask-sdk-core";
 import type { RequestHandler } from "ask-sdk-core";
 import { summarizeConversation } from "../memory/summarize";
 import { saveMemory } from "../memory/memoryService";
-import { fastSpeech } from "../speech";
+import { fastSpeech, randomFarewell } from "../speech";
 
 export const CancelAndStopIntentHandler: RequestHandler = {
   canHandle(handlerInput) {
@@ -30,7 +30,7 @@ export const CancelAndStopIntentHandler: RequestHandler = {
     }
 
     return handlerInput.responseBuilder
-      .speak(fastSpeech("さようなら"))
+      .speak(fastSpeech(randomFarewell()))
       .withShouldEndSession(true)
       .getResponse();
   },

@@ -5,6 +5,7 @@ build:
 
 deploy: build
 	sam deploy \
+	  --no-confirm-changeset \
 		--parameter-overrides \
 			"GoogleApiKey=$${GOOGLE_GENERATIVE_AI_API_KEY}" \
 			"OpenAIApiKey=$${OPENAI_API_KEY}" \
