@@ -8,8 +8,8 @@ export const ErrorHandler: ErrorHandlerType = {
     console.error("Error handled:", error);
 
     return handlerInput.responseBuilder
-      .speak("エラーが発生しました。もう一度お試しください。")
-      .reprompt("もう一度お試しください。")
+      .speak("ごめんね、エラーが起きちゃった。もう一回試してみて。")
+      .reprompt("もう一回聞いてみて。終わりたいときは「ストップ」って言ってね。")
       .getResponse();
   },
 };

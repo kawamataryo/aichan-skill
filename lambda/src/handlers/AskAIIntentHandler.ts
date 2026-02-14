@@ -58,7 +58,7 @@ export const AskAIIntentHandler: RequestHandler = {
 
         return handlerInput.responseBuilder
           .speak(fastSpeech(result.text))
-          .reprompt(fastSpeech("何でも聞いてください。"))
+          .reprompt(fastSpeech("何でも聞いてね。終わりたいときは「ストップ」って言ってね。"))
           .getResponse();
       }
 
@@ -71,13 +71,13 @@ export const AskAIIntentHandler: RequestHandler = {
 
       return handlerInput.responseBuilder
         .speak(fastSpeech(result.text))
-        .reprompt(fastSpeech("他に何か聞きたいことはありますか？"))
+        .reprompt(fastSpeech("他に何かある？終わりたいときは「ストップ」って言ってね。"))
         .getResponse();
     } catch (error) {
       console.error("AskAIIntent error:", error);
       return handlerInput.responseBuilder
         .speak(fastSpeech("すみません、うまく回答できませんでした。もう一度お試しください。"))
-        .reprompt(fastSpeech("もう一度質問してください。"))
+        .reprompt(fastSpeech("もう一回聞いてみて。終わりたいときは「ストップ」って言ってね。"))
         .getResponse();
     }
   },

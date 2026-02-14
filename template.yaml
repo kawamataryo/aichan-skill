@@ -44,7 +44,7 @@ Resources:
     Properties:
       CodeUri: lambda/
       Handler: index.handler
-      Runtime: nodejs20.x
+      Runtime: nodejs22.x
       Architectures:
         - x86_64
       Environment:

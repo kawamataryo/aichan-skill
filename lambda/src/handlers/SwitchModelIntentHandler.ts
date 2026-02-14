@@ -16,8 +16,8 @@ export const SwitchModelIntentHandler: RequestHandler = {
     if (!alias) {
       const available = Object.keys(MODEL_ALIASES).join("、");
       return handlerInput.responseBuilder
-        .speak(`そのモデルは対応していません。${available}から選んでください。`)
-        .reprompt("どのモデルに切り替えますか？")
+        .speak(`そのモデルには対応してないんだ。${available}から選んでね。`)
+        .reprompt("どのモデルにする？")
         .getResponse();
     }
 
@@ -27,8 +27,8 @@ export const SwitchModelIntentHandler: RequestHandler = {
     handlerInput.attributesManager.setSessionAttributes(attributes);
 
     return handlerInput.responseBuilder
-      .speak(`${alias.displayName}に切り替えました。何でも聞いてください。`)
-      .reprompt("何でも聞いてください。")
+      .speak(`${alias.displayName}に切り替えたよ。何でも聞いてね。`)
+      .reprompt("何でも聞いてね。終わりたいときは「ストップ」って言ってね。")
       .getResponse();
   },
 };

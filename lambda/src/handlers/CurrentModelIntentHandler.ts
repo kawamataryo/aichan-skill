@@ -17,8 +17,8 @@ export const CurrentModelIntentHandler: RequestHandler = {
     const displayName = getDisplayName(modelId);
 
     return handlerInput.responseBuilder
-      .speak(`現在は${displayName}を使っています。`)
-      .reprompt("他に何か聞きたいことはありますか？")
+      .speak(`今は${displayName}を使ってるよ。`)
+      .reprompt("他に何かある？終わりたいときは「ストップ」って言ってね。")
       .getResponse();
   },
 };

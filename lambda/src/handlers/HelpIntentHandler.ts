@@ -11,11 +11,11 @@ export const HelpIntentHandler: RequestHandler = {
   },
   handle(handlerInput) {
     const speechText =
-      "このスキルでは、AIに何でも質問できます。例えば「日本の首都はどこ」や「量子コンピュータについて教えて」のように話しかけてください。GPTやクロードに切り替えることもできます。";
+      "あいちゃんには何でも質問できるよ。例えば「日本の首都はどこ」とか「量子コンピュータについて教えて」みたいに話しかけてね。GPTやクロードに切り替えることもできるよ。終わりたいときは「ストップ」って言ってね。";
 
     return handlerInput.responseBuilder
       .speak(fastSpeech(speechText))
-      .reprompt(fastSpeech(speechText))
+      .reprompt(fastSpeech("何でも聞いてね。終わりたいときは「ストップ」って言ってね。"))
       .getResponse();
   },
 };
