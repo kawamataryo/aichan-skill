@@ -21,15 +21,13 @@ export const AskAIIntentHandler: RequestHandler = {
 
     const conversationHistory: Array<{ role: "user" | "assistant"; content: string }> =
       attributes.conversationHistory ?? [];
-    const modelId: string | undefined = attributes.modelId;
     const memories: string | undefined = attributes.memories;
 
     try {
-      const result = await generateAIResponse(query, conversationHistory, modelId, memories);
+      const result = await generateAIResponse(query, conversationHistory, memories);
 
       // セッション終了
       if (result.shouldEndSession) {
-        // 会話履歴に最後のやりとりを追加してから要約
         conversationHistory.push({ role: "user", content: query });
         conversationHistory.push({ role: "assistant", content: result.text });
 
@@ -40,25 +38,12 @@ export const AskAIIntentHandler: RequestHandler = {
           console.error("Memory save error:", error);
         }
 
-        // 二重保存防止: conversationHistory をクリア
         attributes.conversationHistory = [];
         handlerInput.attributesManager.setSessionAttributes(attributes);
 
         return handlerInput.responseBuilder
           .speak(fastSpeech(result.text || randomFarewell()))
           .withShouldEndSession(true)
-          .getResponse();
-      }
-
-      // モデル切り替えが行われた場合、セッションを更新して会話履歴をリセット
-      if (result.switchToModel) {
-        attributes.modelId = result.switchToModel;
-        attributes.conversationHistory = [];
-        handlerInput.attributesManager.setSessionAttributes(attributes);
-
-        return handlerInput.responseBuilder
-          .speak(fastSpeech(result.text))
-          .reprompt(fastSpeech("何でも聞いてね。終わりたいときは「ストップ」って言ってね。"))
           .getResponse();
       }
 

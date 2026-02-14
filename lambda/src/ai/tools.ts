@@ -1,36 +1,5 @@
 import { tool } from "ai";
 import { z } from "zod";
-import { MODEL_ALIASES, getDisplayName } from "./registry";
-
-export function createSwitchModelTool(onSwitch: (modelId: string) => void) {
-  return tool({
-    description:
-      "AIモデルを切り替えます。ユーザーがGemini、GPT、Claudeなど別のモデルに切り替えたい・変えたい・使いたいと言った場合に使用してください。",
-    parameters: z.object({
-      model: z.enum(["ジェミニ", "GPT", "クロード"]).describe("切り替え先のモデル名"),
-    }),
-    execute: async ({ model }) => {
-      const alias = MODEL_ALIASES[model];
-      if (alias) {
-        onSwitch(alias.modelId);
-        return { success: true, displayName: alias.displayName };
-      }
-      return { success: false, error: "不明なモデルです" };
-    },
-  });
-}
-
-export function createGetCurrentModelTool(currentModelId: string) {
-  return tool({
-    description:
-      "現在使用中のAIモデルを確認します。ユーザーが今のモデルは何か・何を使っているかを聞いた場合に使用してください。",
-    parameters: z.object({}),
-    execute: async () => {
-      const displayName = getDisplayName(currentModelId);
-      return { displayName };
-    },
-  });
-}
 
 export function createEndSessionTool(onEnd: () => void) {
   return tool({

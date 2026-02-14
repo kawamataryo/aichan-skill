@@ -1,8 +1,6 @@
 import { generateText } from "ai";
 import { getModel } from "../ai/registry";
 
-const SUMMARIZE_MODEL = "google:gemini-2.5-flash";
-
 export async function summarizeConversation(
   conversationHistory: Array<{ role: string; content: string }>,
 ): Promise<string> {
@@ -11,7 +9,7 @@ export async function summarizeConversation(
     .join("\n");
 
   const { text } = await generateText({
-    model: getModel(SUMMARIZE_MODEL),
+    model: getModel(),
     maxTokens: 500,
     prompt: `以下の会話を簡潔に要約してください。
 ユーザーの興味・関心、個人的な情報、具体的な事実（名前、日付、好みなど）を優先的に残してください。
@@ -34,7 +32,7 @@ export async function consolidateMemories(
   const sectionsPart = oldSections.join("\n---\n");
 
   const { text } = await generateText({
-    model: getModel(SUMMARIZE_MODEL),
+    model: getModel(),
     maxTokens: 800,
     prompt: `以下の情報を統合して、ユーザーについての長期記憶を作成してください。
 ユーザーの興味・関心、個人的な情報、具体的な事実（名前、日付、好み、よく聞く話題など）を優先的に残してください。

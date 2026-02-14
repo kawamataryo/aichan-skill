@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**AI Chan (あいちゃん)** - Amazon Alexa向けの日本語AIスキル。Vercel AI SDKを使い、Gemini / GPT-4o / Claude の複数AIプロバイダーに対応。音声による会話・Web検索・モデル切り替え・会話記憶（S3）機能を持つ。
+**AI Chan (あいちゃん)** - Amazon Alexa向けの日本語AIスキル。Vercel AI SDKを使用。デプロイ時に環境変数でAIモデル・プロバイダーを設定可能（デフォルト: Gemini 2.5 Flash）。音声による会話・Web検索・会話記憶（S3）機能を持つ。
 
 ## Build & Deploy Commands
 
@@ -55,13 +55,12 @@ npm run typecheck        # tsgo (typescript-go) で型チェック
 - `handlers/` — Alexa インテントハンドラー群（`canHandle` / `handle` パターン）
   - `AskAIIntentHandler.ts` — メインのAI問い合わせ処理。会話履歴管理・AI応答生成
   - `LaunchRequestHandler.ts` — スキル起動時。S3から記憶をロード
-  - `SwitchModelIntentHandler.ts` / `CurrentModelIntentHandler.ts` — モデル切り替え
   - `CancelAndStopIntentHandler.ts` — セッション終了時に会話を要約・S3保存
 - `ai/` — AI生成・設定
-  - `registry.ts` — マルチプロバイダーのモデルレジストリ（エイリアス: "ジェミニ", "GPT", "クロード"）
+  - `registry.ts` — プロバイダーレジストリ。環境変数 `AI_MODEL` でモデルを決定（デフォルト: `google:gemini-2.5-flash`）
   - `generate.ts` — `generateText` による応答生成（maxSteps: 3）
   - `prompts.ts` — 日本語システムプロンプト（キャラ設定・応答ルール）
-  - `tools.ts` — AIツール定義（webSearch, switchModel, getCurrentModel, endSession）
+  - `tools.ts` — AIツール定義（webSearch, endSession）
 - `memory/` — S3ベースの会話記憶
   - `memoryService.ts` — S3への記憶永続化
   - `summarize.ts` — 会話要約・統合（直近10セッション + 長期記憶、最大4000文字）
@@ -79,5 +78,5 @@ npm run typecheck        # tsgo (typescript-go) で型チェック
 - **日本語ファースト**: プロンプト・音声・インテントすべて日本語
 - **音声出力**: SSMLの `<prosody rate="130%">` で再生速度調整。マークダウン記法は不可（音声読み上げのため）
 - **AI応答**: 最大500文字。会話履歴は直近5ターン(10メッセージ)を保持
-- **環境変数**: `GOOGLE_GENERATIVE_AI_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `TAVILY_API_KEY`, `MEMORY_BUCKET`, `AI_MODEL`
+- **環境変数**: `AI_MODEL`（使用モデル）, `GOOGLE_GENERATIVE_AI_API_KEY` / `OPENAI_API_KEY` / `ANTHROPIC_API_KEY`（選択したプロバイダーのキー）, `TAVILY_API_KEY`, `MEMORY_BUCKET`
 - **ESM**: `"type": "module"` を使用

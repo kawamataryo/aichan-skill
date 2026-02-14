@@ -1,11 +1,11 @@
 # AI Chan
 
-Alexa 上で動作する、音声対話型の AI スキル。  
-Gemini / GPT / Claude の切り替え、Web 検索、S3 を使った会話メモリをサポート。
+Alexa 上で動作する、音声対話型の AI スキル。
+Web 検索、S3 を使った会話メモリをサポート。
 
 ## 主な機能
 
-- 音声コマンドでモデルを切り替え（Gemini / GPT / Claude）
+- Vercel AI SDK によるAI応答（デプロイ時にモデル・プロバイダーを選択可能）
 - Tavily API を使った Web 検索
 - 会話内容の要約を S3 に保存し、次回応答に反映
 - SSML を使った読み上げ速度の調整
@@ -16,7 +16,7 @@ Gemini / GPT / Claude の切り替え、Web 検索、S3 を使った会話メモ
 flowchart LR
     A[Alexa] --> B[API Gateway]
     B --> C[Lambda]
-    C --> D[Gemini / GPT / Claude]
+    C --> D[AI Provider]
     C --> E[S3<br/>memories]
 ```
 
@@ -54,18 +54,16 @@ make deploy
 | 「あいちゃんを開いて」 | 起動 |
 | 「量子コンピュータについて教えて」 | AI が回答 |
 | 「今日のニュースを調べて」 | Web 検索して回答 |
-| 「GPTに切り替えて」 | GPT モデルに変更 |
-| 「クロードを使って」 | Claude モデルに変更 |
-| 「ジェミニにして」 | Gemini モデルに変更 |
 | 「ストップ」 | 終了（会話を記憶に保存） |
 
 ## 環境変数
 
 | 変数 | 用途 |
 |---|---|
-| `GOOGLE_GENERATIVE_AI_API_KEY` | Gemini |
-| `OPENAI_API_KEY` | GPT |
-| `ANTHROPIC_API_KEY` | Claude |
+| `AI_MODEL` | 使用するモデル（デフォルト: `google:gemini-2.5-flash`） |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | Google AI（Gemini 使用時） |
+| `OPENAI_API_KEY` | OpenAI（GPT 使用時） |
+| `ANTHROPIC_API_KEY` | Anthropic（Claude 使用時） |
 | `TAVILY_API_KEY` | Web 検索 |
 
 ## ディレクトリ構成
