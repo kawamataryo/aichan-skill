@@ -159,14 +159,10 @@ export function trimMemoriesForPrompt(memories: string): string {
   if (memories.length <= MAX_PROMPT_CHARS) return memories;
 
   const { longTermMemory, recentSections } = parseSections(memories);
-  const parts = longTermMemory ? [longTermMemory] : [];
 
   for (let i = recentSections.length - 1; i >= 0; i--) {
-    const candidate = [...parts.slice(0, 1), recentSections[i], ...parts.slice(1)];
     if (longTermMemory) {
-      candidate.splice(0, 1, longTermMemory);
-      candidate.splice(1, 0, ...recentSections.slice(i));
-      const text = candidate.join(SECTION_SEPARATOR);
+      const text = [longTermMemory, ...recentSections.slice(i)].join(SECTION_SEPARATOR);
       if (text.length <= MAX_PROMPT_CHARS) {
         return text;
       }
