@@ -1,5 +1,5 @@
-import { generateText } from "ai";
-import type { CoreMessage } from "ai";
+import { generateText, stepCountIs } from "ai";
+import type { ModelMessage } from "ai";
 import { buildSystemPrompt } from "./prompts";
 import { webSearchTool, createEndSessionTool } from "./tools";
 import { getModel } from "./registry";
@@ -13,8 +13,9 @@ export async function generateAIResponse(
   query: string,
   conversationHistory: Array<{ role: string; content: string }>,
   memories?: string,
+  userName?: string,
 ): Promise<AIResponse> {
-  const messages: CoreMessage[] = conversationHistory.map((msg) => ({
+  const messages: ModelMessage[] = conversationHistory.map((msg) => ({
     role: msg.role as "user" | "assistant",
     content: msg.content,
   }));
@@ -23,7 +24,7 @@ export async function generateAIResponse(
 
   let shouldEndSession = false;
 
-  let systemPrompt = buildSystemPrompt();
+  let systemPrompt = buildSystemPrompt(userName);
   if (memories) {
     systemPrompt += `\n\n## 過去の会話の記憶\n${memories}`;
   }
@@ -38,7 +39,7 @@ export async function generateAIResponse(
         shouldEndSession = true;
       }),
     },
-    maxSteps: 3,
+    stopWhen: stepCountIs(3),
   });
 
   return { text, shouldEndSession };

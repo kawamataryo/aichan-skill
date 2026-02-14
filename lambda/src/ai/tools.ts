@@ -1,11 +1,10 @@
-import { tool } from "ai";
-import { z } from "zod";
+import { tool, jsonSchema } from "ai";
 
 export function createEndSessionTool(onEnd: () => void) {
   return tool({
     description:
       "スキルのセッションを終了します。ユーザーが会話を終わりたい・もういい・おしまい・バイバイなど終了の意思を示した場合に使用してください。",
-    parameters: z.object({}),
+    inputSchema: jsonSchema<Record<string, never>>({ type: "object", properties: {} }),
     execute: async () => {
       onEnd();
       return { success: true };
@@ -15,8 +14,12 @@ export function createEndSessionTool(onEnd: () => void) {
 
 export const webSearchTool = tool({
   description: "Web検索を実行して最新の情報を取得します",
-  parameters: z.object({
-    query: z.string().describe("検索クエリ"),
+  inputSchema: jsonSchema<{ query: string }>({
+    type: "object",
+    properties: {
+      query: { type: "string", description: "検索クエリ" },
+    },
+    required: ["query"],
   }),
   execute: async ({ query }) => {
     const apiKey = process.env.TAVILY_API_KEY;

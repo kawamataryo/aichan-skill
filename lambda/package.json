@@ -8,14 +8,13 @@
     "typecheck": "tsgo --noEmit"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^1",
-    "@ai-sdk/google": "^1",
-    "@ai-sdk/openai": "^1",
+    "@ai-sdk/anthropic": "^3.0.44",
+    "@ai-sdk/google": "^3.0.29",
+    "@ai-sdk/openai": "^3.0.29",
     "@aws-sdk/client-s3": "^3",
-    "ai": "^4",
+    "ai": "^6.0.86",
     "ask-sdk-core": "^2.14.0",
-    "ask-sdk-model": "^1.86.0",
-    "zod": "^3.23"
+    "ask-sdk-model": "^1.86.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8",

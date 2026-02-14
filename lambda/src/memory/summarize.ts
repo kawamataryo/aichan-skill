@@ -10,7 +10,7 @@ export async function summarizeConversation(
 
   const { text } = await generateText({
     model: getModel(),
-    maxTokens: 500,
+    maxOutputTokens: 1000,
     prompt: `以下の会話を簡潔に要約してください。
 ユーザーの興味・関心、個人的な情報、具体的な事実（名前、日付、好みなど）を優先的に残してください。
 箇条書きではなく、短い文章でまとめてください。
@@ -33,7 +33,7 @@ export async function consolidateMemories(
 
   const { text } = await generateText({
     model: getModel(),
-    maxTokens: 800,
+    maxOutputTokens: 1500,
     prompt: `以下の情報を統合して、ユーザーについての長期記憶を作成してください。
 ユーザーの興味・関心、個人的な情報、具体的な事実（名前、日付、好み、よく聞く話題など）を優先的に残してください。
 時系列の詳細は省略し、重要な事実やパターンに焦点を当ててください。
