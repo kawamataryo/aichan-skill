@@ -1,7 +1,7 @@
 import Alexa from "ask-sdk-core";
 import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { LaunchRequestHandler } from "./handlers/LaunchRequestHandler";
-import { GeminiIntentHandler } from "./handlers/GeminiIntentHandler";
+import { AskAIIntentHandler } from "./handlers/AskAIIntentHandler";
 import { HelpIntentHandler } from "./handlers/HelpIntentHandler";
 import { CancelAndStopIntentHandler } from "./handlers/CancelAndStopIntentHandler";
 import { SessionEndedRequestHandler } from "./handlers/SessionEndedRequestHandler";
@@ -10,7 +10,7 @@ import { ErrorHandler } from "./handlers/ErrorHandler";
 const skill = Alexa.SkillBuilders.custom()
   .addRequestHandlers(
     LaunchRequestHandler,
-    GeminiIntentHandler,
+    AskAIIntentHandler,
     HelpIntentHandler,
     CancelAndStopIntentHandler,
     SessionEndedRequestHandler,

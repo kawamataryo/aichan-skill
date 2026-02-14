@@ -1,24 +1,18 @@
 {
   "interactionModel": {
     "languageModel": {
-      "invocationName": "ジェミニ",
+      "invocationName": "マイエーアイ",
       "intents": [
         {
-          "name": "GeminiIntent",
+          "name": "AskAIIntent",
           "slots": [
             {
               "name": "query",
-              "type": "AMAZON.SearchQuery"
+              "type": "ANY"
             }
           ],
           "samples": [
-            "{query} を教えて",
-            "{query} について教えて",
-            "{query} って何",
-            "{query} を調べて",
-            "{query} について調べて",
-            "{query}",
-            "{query} を聞いて"
+            "{query}"
           ]
         },
         {
@@ -36,6 +30,18 @@
         {
           "name": "AMAZON.NavigateHomeIntent",
           "samples": []
+        }
+      ],
+      "types": [
+        {
+          "name": "ANY",
+          "values": [
+            {
+              "name": {
+                "value": "あいうえお"
+              }
+            }
+          ]
         }
       ]
     }

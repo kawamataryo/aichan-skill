@@ -10,7 +10,7 @@ export const HelpIntentHandler: RequestHandler = {
   },
   handle(handlerInput) {
     const speechText =
-      "このスキルでは、ジェミニAIに何でも質問できます。例えば「日本の首都はどこ」や「量子コンピュータについて教えて」のように話しかけてください。";
+      "このスキルでは、AIに何でも質問できます。例えば「日本の首都はどこ」や「量子コンピュータについて教えて」のように話しかけてください。GPTやクロードに切り替えることもできます。";
 
     return handlerInput.responseBuilder
       .speak(speechText)

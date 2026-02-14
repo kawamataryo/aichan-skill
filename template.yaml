@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
-Description: Alexa Skill with Gemini 2.5 Flash
+Description: Alexa AI Skill with Multi-Provider Support
 
 Globals:
   Function:
@@ -8,7 +8,20 @@ Globals:
     MemorySize: 256
 
 Resources:
-  GeminiSkillFunction:
+  MemoryBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  AISkillFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/
@@ -18,8 +31,15 @@ Resources:
         - x86_64
       Environment:
         Variables:
+          AI_MODEL: "google:gemini-2.5-flash"
           GOOGLE_GENERATIVE_AI_API_KEY: ""
+          OPENAI_API_KEY: ""
+          ANTHROPIC_API_KEY: ""
           TAVILY_API_KEY: ""
+          MEMORY_BUCKET: !Ref MemoryBucket
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref MemoryBucket
       Events:
         AlexaEndpoint:
           Type: HttpApi
@@ -39,6 +59,6 @@ Outputs:
   AlexaEndpointUrl:
     Description: API Gateway endpoint URL for Alexa skill
     Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/alexa"
-  GeminiSkillFunction:
+  AISkillFunction:
     Description: Lambda Function ARN
-    Value: !GetAtt GeminiSkillFunction.Arn
+    Value: !GetAtt AISkillFunction.Arn

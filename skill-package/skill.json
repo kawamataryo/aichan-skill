@@ -3,14 +3,14 @@
     "publishingInformation": {
       "locales": {
         "ja-JP": {
-          "summary": "Geminiに質問できるスキル",
+          "summary": "AIに質問できるスキル",
           "examplePhrases": [
-            "アレクサ、ジェミニを開いて",
-            "アレクサ、ジェミニに聞いて",
-            "アレクサ、ジェミニで調べて"
+            "アレクサ、AIを開いて",
+            "アレクサ、AIに聞いて",
+            "アレクサ、AIで調べて"
           ],
-          "name": "Gemini スキル",
-          "description": "Google Gemini 2.5 Flash を使ってAIに質問できるAlexaスキルです。"
+          "name": "AI スキル",
+          "description": "複数のAIモデル（Gemini / GPT / Claude）に質問できるAlexaスキルです。"
         }
       },
       "isAvailableWorldwide": false,
