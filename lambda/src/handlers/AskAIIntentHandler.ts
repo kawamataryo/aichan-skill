@@ -24,9 +24,10 @@ export const AskAIIntentHandler: RequestHandler = {
     const conversationHistory: Array<{ role: "user" | "assistant"; content: string }> =
       attributes.conversationHistory ?? [];
     const memories: string | undefined = attributes.memories;
+    const userName: string | undefined = attributes.userName;
 
     try {
-      const result = await generateAIResponse(query, conversationHistory, memories);
+      const result = await generateAIResponse(query, conversationHistory, memories, userName);
 
       // セッション終了
       if (result.shouldEndSession) {

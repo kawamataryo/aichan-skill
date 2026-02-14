@@ -1,8 +1,38 @@
 import Alexa from "ask-sdk-core";
 import type { RequestHandler } from "ask-sdk-core";
+import type { RequestEnvelope } from "ask-sdk-model";
 import { loadMemories, trimMemoriesForPrompt } from "../memory/memoryService";
 import { fastSpeech, randomGreeting } from "../speech";
 import { getUserId } from "../util/getUserId";
+
+async function fetchUserName(requestEnvelope: RequestEnvelope): Promise<string | null> {
+  const apiEndpoint = requestEnvelope.context.System.apiEndpoint;
+  const apiAccessToken = requestEnvelope.context.System.apiAccessToken;
+  if (!apiEndpoint || !apiAccessToken) return null;
+
+  const headers = { Authorization: `Bearer ${apiAccessToken}` };
+  const person = requestEnvelope.context.System.person;
+
+  if (person?.personId) {
+    try {
+      const res = await fetch(`${apiEndpoint}/v2/persons/~current/profile/givenName`, { headers });
+      if (res.ok) return await res.text();
+    } catch {
+      // personId での取得失敗時は userId でフォールバック
+    }
+  }
+
+  try {
+    const res = await fetch(`${apiEndpoint}/v2/accounts/~current/settings/Profile.givenName`, {
+      headers,
+    });
+    if (res.ok) return await res.text();
+  } catch {
+    // 権限未付与やエラー時は名前なしで継続
+  }
+
+  return null;
+}
 
 export const LaunchRequestHandler: RequestHandler = {
   canHandle(handlerInput) {
@@ -13,15 +43,19 @@ export const LaunchRequestHandler: RequestHandler = {
     const userId = getUserId(handlerInput.requestEnvelope);
     attributes.userId = userId;
 
-    let memories: string | null = null;
-    try {
-      memories = await loadMemories(userId);
-    } catch (error) {
-      console.error("Memory load error:", error);
-    }
+    const [memories, userName] = await Promise.all([
+      loadMemories(userId).catch((error) => {
+        console.error("Memory load error:", error);
+        return null;
+      }),
+      fetchUserName(handlerInput.requestEnvelope),
+    ]);
 
     if (memories) {
       attributes.memories = trimMemoriesForPrompt(memories);
+    }
+    if (userName) {
+      attributes.userName = userName;
     }
     handlerInput.attributesManager.setSessionAttributes(attributes);
 

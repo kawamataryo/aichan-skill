@@ -31,7 +31,12 @@
       "isExportCompliant": true,
       "containsAds": false,
       "isChildDirected": false,
-      "usesPersonalInfo": false
-    }
+      "usesPersonalInfo": true
+    },
+    "permissions": [
+      {
+        "name": "alexa::profile:given_name:read"
+      }
+    ]
   }
 }
