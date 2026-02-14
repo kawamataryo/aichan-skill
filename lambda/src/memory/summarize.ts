@@ -6,6 +6,11 @@ export interface SummarizeResult {
   profileUpdates: Record<string, string>;
 }
 
+interface RawSummarizeResult {
+  summary: string;
+  profileUpdates: Array<{ key: string; value: string }>;
+}
+
 export async function summarizeConversation(
   conversationHistory: Array<{ role: string; content: string }>,
 ): Promise<SummarizeResult> {
@@ -17,7 +22,7 @@ export async function summarizeConversation(
     model: getModel(),
     maxOutputTokens: 1000,
     output: Output.object({
-      schema: jsonSchema<SummarizeResult>({
+      schema: jsonSchema<RawSummarizeResult>({
         type: "object",
         properties: {
           summary: {
@@ -26,10 +31,23 @@ export async function summarizeConversation(
               "会話の簡潔な要約。ユーザーの興味・関心、具体的な事実を優先的に残す。箇条書きではなく短い文章で。",
           },
           profileUpdates: {
-            type: "object",
-            additionalProperties: { type: "string" },
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                key: {
+                  type: "string",
+                  description: "情報の種類（例: 名前、住所、趣味、職業）",
+                },
+                value: {
+                  type: "string",
+                  description: "情報の値",
+                },
+              },
+              required: ["key", "value"],
+            },
             description:
-              "会話から判明したユーザーの個人情報（名前、住所、趣味、職業、年齢、家族構成、好きなものなど）をキーと値のペアで抽出。該当なしなら空オブジェクト。キーは日本語（例: 名前、住所、趣味）。",
+              "会話から判明したユーザーの個人情報（名前、住所、趣味、職業、年齢、家族構成、好きなものなど）をキーと値のペアで抽出。該当なしなら空配列。",
           },
         },
         required: ["summary", "profileUpdates"],
@@ -38,13 +56,18 @@ export async function summarizeConversation(
     prompt: `以下の会話を分析してください。
 
 1. 会話を簡潔に要約してください。ユーザーの興味・関心、具体的な事実（日付、好みなど）を優先的に残してください。箇条書きではなく、短い文章でまとめてください。
-2. 会話からユーザーの個人情報（名前、住所、趣味、職業、年齢、家族構成、好きなもの、嫌いなものなど）を抽出してください。該当する情報がない場合は空のオブジェクトを返してください。
+2. 会話からユーザーの個人情報（名前、住所、趣味、職業、年齢、家族構成、好きなもの、嫌いなものなど）を抽出してください。該当する情報がない場合は空の配列を返してください。
 
 会話:
 ${transcript}`,
   });
 
-  return output!;
+  const raw = output!;
+  const profileUpdates: Record<string, string> = {};
+  for (const { key, value } of raw.profileUpdates) {
+    profileUpdates[key] = value;
+  }
+  return { summary: raw.summary, profileUpdates };
 }
 
 export async function consolidateMemories(
