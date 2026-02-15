@@ -24,15 +24,16 @@ export const CancelAndStopIntentHandler: RequestHandler = {
     if (conversationHistory.length > 0) {
       try {
         const getSummarizeElapsed = startTimer();
-        const { summary, profileUpdates } = await summarizeConversation(conversationHistory);
+        const { summary, profileUpdates, facts } = await summarizeConversation(conversationHistory);
         const summarizeDurationMs = getSummarizeElapsed();
         const getSaveElapsed = startTimer();
-        await saveMemory(userId, summary, profileUpdates);
+        await saveMemory(userId, summary, profileUpdates, facts);
         logInfo("stop.memory_saved", "CancelAndStopIntentHandler", {
           userId,
           durationMs: getSaveElapsed(),
           summarizeDurationMs,
           profileUpdateCount: Object.keys(profileUpdates).length,
+          factCount: facts.length,
           historyMessages: conversationHistory.length,
         });
       } catch (error) {

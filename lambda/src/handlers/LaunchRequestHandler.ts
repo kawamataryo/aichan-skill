@@ -29,7 +29,7 @@ export const LaunchRequestHandler: RequestHandler = {
     const getLoadElapsed = startTimer();
     const loaded = await loadMemories(userId).catch((error) => {
       logError("memory.load.failed", "LaunchRequestHandler", error, { userId });
-      return { profile: null, memories: null };
+      return { profile: null, memories: null, memoryPayload: null };
     });
     const loadDurationMs = getLoadElapsed();
 
@@ -38,6 +38,9 @@ export const LaunchRequestHandler: RequestHandler = {
     }
     if (loaded.profile) {
       attributes.profile = loaded.profile;
+    }
+    if (loaded.memoryPayload) {
+      attributes.memoryPayload = loaded.memoryPayload;
     }
     handlerInput.attributesManager.setSessionAttributes(attributes);
 

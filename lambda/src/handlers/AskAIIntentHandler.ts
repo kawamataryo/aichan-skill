@@ -3,6 +3,7 @@ import type { RequestHandler } from "ask-sdk-core";
 import { generateAIResponse } from "../ai/generate";
 import { summarizeConversation } from "../memory/summarize";
 import { saveMemory } from "../memory/memoryService";
+import type { PromptMemoryPayload } from "../memory/memoryService";
 import { getUserId } from "../util/getUserId";
 
 import { fastSpeech, randomFarewell } from "../speech";
@@ -27,10 +28,17 @@ export const AskAIIntentHandler: RequestHandler = {
       attributes.conversationHistory ?? [];
     const memories: string | undefined = attributes.memories;
     const profile: string | undefined = attributes.profile;
+    const memoryPayload: PromptMemoryPayload | undefined = attributes.memoryPayload;
 
     try {
       const getGenerateElapsed = startTimer();
-      const result = await generateAIResponse(query, conversationHistory, memories, profile);
+      const result = await generateAIResponse(
+        query,
+        conversationHistory,
+        memories,
+        profile,
+        memoryPayload,
+      );
       const aiDurationMs = getGenerateElapsed();
 
       // セッション終了
@@ -40,15 +48,17 @@ export const AskAIIntentHandler: RequestHandler = {
 
         try {
           const getSummarizeElapsed = startTimer();
-          const { summary, profileUpdates } = await summarizeConversation(conversationHistory);
+          const { summary, profileUpdates, facts } =
+            await summarizeConversation(conversationHistory);
           const summarizeDurationMs = getSummarizeElapsed();
           const getSaveElapsed = startTimer();
-          await saveMemory(userId, summary, profileUpdates);
+          await saveMemory(userId, summary, profileUpdates, facts);
           logInfo("ask_ai.memory_saved", "AskAIIntentHandler", {
             userId,
             durationMs: getSaveElapsed(),
             summarizeDurationMs,
             profileUpdateCount: Object.keys(profileUpdates).length,
+            factCount: facts.length,
           });
         } catch (error) {
           logError("ask_ai.memory_save.failed", "AskAIIntentHandler", error, { userId });
