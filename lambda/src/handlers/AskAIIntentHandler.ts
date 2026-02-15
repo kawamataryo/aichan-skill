@@ -26,18 +26,11 @@ export const AskAIIntentHandler: RequestHandler = {
     const conversationHistory: Array<{ role: "user" | "assistant"; content: string }> =
       attributes.conversationHistory ?? [];
     const memories: string | undefined = attributes.memories;
-    const userName: string | undefined = attributes.userName;
     const profile: string | undefined = attributes.profile;
 
     try {
       const getGenerateElapsed = startTimer();
-      const result = await generateAIResponse(
-        query,
-        conversationHistory,
-        memories,
-        userName,
-        profile,
-      );
+      const result = await generateAIResponse(query, conversationHistory, memories, profile);
       const aiDurationMs = getGenerateElapsed();
 
       // セッション終了

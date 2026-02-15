@@ -6,7 +6,11 @@ Parameters:
   AIModel:
     Type: String
     Default: "google:gemini-2.5-flash"
-    Description: "AI model to use (e.g. google:gemini-2.5-flash, openai:gpt-4o, anthropic:claude-sonnet-4-5-20250929)"
+    Description: "AI model to use for conversation (e.g. google:gemini-2.5-flash, openai:gpt-4o, anthropic:claude-sonnet-4-5-20250929)"
+  SummaryModel:
+    Type: String
+    Default: "google:gemini-2.5-flash-lite"
+    Description: "AI model to use for summarization (e.g. google:gemini-2.5-flash-lite)"
   GoogleApiKey:
     Type: String
     Default: ""
@@ -54,6 +58,7 @@ Resources:
       Environment:
         Variables:
           AI_MODEL: !Ref AIModel
+          SUMMARY_MODEL: !Ref SummaryModel
           GOOGLE_GENERATIVE_AI_API_KEY: !Ref GoogleApiKey
           OPENAI_API_KEY: !Ref OpenAIApiKey
           ANTHROPIC_API_KEY: !Ref AnthropicApiKey

@@ -1,5 +1,5 @@
 import { generateText, Output, jsonSchema } from "ai";
-import { getModel } from "../ai/registry";
+import { getSummaryModel } from "../ai/registry";
 import { logError, logInfo, startTimer } from "../util/structuredLogger";
 
 export interface SummarizeResult {
@@ -22,7 +22,7 @@ export async function summarizeConversation(
 
   try {
     const { output } = await generateText({
-      model: getModel(),
+      model: getSummaryModel(),
       maxOutputTokens: 1000,
       output: Output.object({
         schema: jsonSchema<RawSummarizeResult>({
@@ -99,7 +99,7 @@ export async function consolidateMemories(
 
   try {
     const { text } = await generateText({
-      model: getModel(),
+      model: getSummaryModel(),
       maxOutputTokens: 1500,
       prompt: `以下の情報を統合して、ユーザーについての長期記憶を作成してください。
 ユーザーの興味・関心、個人的な情報、具体的な事実（名前、日付、好み、よく聞く話題など）を優先的に残してください。

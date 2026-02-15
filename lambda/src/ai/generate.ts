@@ -14,7 +14,6 @@ export async function generateAIResponse(
   query: string,
   conversationHistory: Array<{ role: string; content: string }>,
   memories?: string,
-  userName?: string,
   profile?: string,
 ): Promise<AIResponse> {
   const getElapsed = startTimer();
@@ -27,7 +26,7 @@ export async function generateAIResponse(
 
   let shouldEndSession = false;
 
-  let systemPrompt = buildSystemPrompt(userName);
+  let systemPrompt = buildSystemPrompt();
   if (profile) {
     systemPrompt += `\n\n## ユーザープロファイル\n${profile}`;
   }
@@ -55,7 +54,6 @@ export async function generateAIResponse(
       historyMessages: conversationHistory.length,
       hasMemories: Boolean(memories),
       hasProfile: Boolean(profile),
-      hasUserName: Boolean(userName),
       outputChars: text.length,
       shouldEndSession,
     });
@@ -68,7 +66,6 @@ export async function generateAIResponse(
       historyMessages: conversationHistory.length,
       hasMemories: Boolean(memories),
       hasProfile: Boolean(profile),
-      hasUserName: Boolean(userName),
     });
     throw error;
   }

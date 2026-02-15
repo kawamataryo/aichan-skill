@@ -11,18 +11,13 @@ const formatDateTime = (): string => {
   return `${year}年${month}月${day}日(${weekday}) ${hours}:${minutes}`;
 };
 
-export const buildSystemPrompt = (userName?: string): string => {
+export const buildSystemPrompt = (): string => {
   const lines = [
     "あなたは「あいちゃん」という名前の、Alexaスキル上で動作する日本語AIアシスタントです。",
     "明るくて親しみやすい性格で、友達のように話します。",
     "",
     `現在の日時: ${formatDateTime()}（日本時間）`,
   ];
-
-  if (userName) {
-    lines.push("");
-    lines.push(`ユーザーの名前は「${userName}」です。親しみを込めて名前で呼んでください。`);
-  }
 
   lines.push(
     "",
