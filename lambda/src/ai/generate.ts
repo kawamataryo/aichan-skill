@@ -3,6 +3,7 @@ import type { ModelMessage } from "ai";
 import { buildSystemPrompt } from "./prompts";
 import { webSearchTool, createEndSessionTool } from "./tools";
 import { getModel } from "./registry";
+import { logError, logInfo, startTimer } from "../util/structuredLogger";
 
 export interface AIResponse {
   text: string;
@@ -16,6 +17,7 @@ export async function generateAIResponse(
   userName?: string,
   profile?: string,
 ): Promise<AIResponse> {
+  const getElapsed = startTimer();
   const messages: ModelMessage[] = conversationHistory.map((msg) => ({
     role: msg.role as "user" | "assistant",
     content: msg.content,
@@ -33,18 +35,41 @@ export async function generateAIResponse(
     systemPrompt += `\n\n## 過去の会話の記憶\n${memories}`;
   }
 
-  const { text } = await generateText({
-    model: getModel(),
-    system: systemPrompt,
-    messages,
-    tools: {
-      webSearch: webSearchTool,
-      endSession: createEndSessionTool(() => {
-        shouldEndSession = true;
-      }),
-    },
-    stopWhen: stepCountIs(3),
-  });
+  try {
+    const { text } = await generateText({
+      model: getModel(),
+      system: systemPrompt,
+      messages,
+      tools: {
+        webSearch: webSearchTool,
+        endSession: createEndSessionTool(() => {
+          shouldEndSession = true;
+        }),
+      },
+      stopWhen: stepCountIs(3),
+    });
 
-  return { text, shouldEndSession };
+    logInfo("ai.generate.completed", "generateAIResponse", {
+      durationMs: getElapsed(),
+      queryChars: query.length,
+      historyMessages: conversationHistory.length,
+      hasMemories: Boolean(memories),
+      hasProfile: Boolean(profile),
+      hasUserName: Boolean(userName),
+      outputChars: text.length,
+      shouldEndSession,
+    });
+
+    return { text, shouldEndSession };
+  } catch (error) {
+    logError("ai.generate.failed", "generateAIResponse", error, {
+      durationMs: getElapsed(),
+      queryChars: query.length,
+      historyMessages: conversationHistory.length,
+      hasMemories: Boolean(memories),
+      hasProfile: Boolean(profile),
+      hasUserName: Boolean(userName),
+    });
+    throw error;
+  }
 }

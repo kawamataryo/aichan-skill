@@ -4,6 +4,7 @@ import type { RequestEnvelope } from "ask-sdk-model";
 import { loadMemories, trimMemoriesForPrompt } from "../memory/memoryService";
 import { fastSpeech, randomGreeting } from "../speech";
 import { getUserId } from "../util/getUserId";
+import { logError, logInfo, startTimer } from "../util/structuredLogger";
 
 async function fetchUserName(requestEnvelope: RequestEnvelope): Promise<string | null> {
   const apiEndpoint = requestEnvelope.context.System.apiEndpoint;
@@ -39,17 +40,20 @@ export const LaunchRequestHandler: RequestHandler = {
     return Alexa.getRequestType(handlerInput.requestEnvelope) === "LaunchRequest";
   },
   async handle(handlerInput) {
+    const getElapsed = startTimer();
     const attributes = handlerInput.attributesManager.getSessionAttributes();
     const userId = getUserId(handlerInput.requestEnvelope);
     attributes.userId = userId;
 
+    const getLoadElapsed = startTimer();
     const [loaded, userName] = await Promise.all([
       loadMemories(userId).catch((error) => {
-        console.error("Memory load error:", error);
+        logError("memory.load.failed", "LaunchRequestHandler", error, { userId });
         return { profile: null, memories: null };
       }),
       fetchUserName(handlerInput.requestEnvelope),
     ]);
+    const loadDurationMs = getLoadElapsed();
 
     if (loaded.memories) {
       attributes.memories = trimMemoriesForPrompt(loaded.memories);
@@ -63,6 +67,15 @@ export const LaunchRequestHandler: RequestHandler = {
     handlerInput.attributesManager.setSessionAttributes(attributes);
 
     const speechText = randomGreeting();
+    logInfo("launch.completed", "LaunchRequestHandler", {
+      userId,
+      durationMs: getElapsed(),
+      memoryLoadDurationMs: loadDurationMs,
+      hasMemories: Boolean(loaded.memories),
+      hasProfile: Boolean(loaded.profile),
+      hasUserName: Boolean(userName),
+      memoryChars: loaded.memories?.length ?? 0,
+    });
 
     return handlerInput.responseBuilder
       .speak(fastSpeech(speechText))

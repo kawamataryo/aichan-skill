@@ -1,5 +1,6 @@
 import { S3Client, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { consolidateMemories } from "./summarize";
+import { logError, logInfo, startTimer } from "../util/structuredLogger";
 
 const s3 = new S3Client({});
 const BUCKET = process.env.MEMORY_BUCKET!;
@@ -17,20 +18,55 @@ export interface LoadedMemories {
 }
 
 async function loadRaw(userId: string): Promise<string | null> {
+  const getElapsed = startTimer();
   try {
     const res = await s3.send(new GetObjectCommand({ Bucket: BUCKET, Key: getMemoryKey(userId) }));
-    return (await res.Body?.transformToString("utf-8")) ?? null;
+    const raw = (await res.Body?.transformToString("utf-8")) ?? null;
+    logInfo("memory.load_raw.completed", "memoryService.loadRaw", {
+      userId,
+      durationMs: getElapsed(),
+      found: Boolean(raw),
+      bytes: raw?.length ?? 0,
+    });
+    return raw;
   } catch (e: unknown) {
-    if ((e as { name?: string }).name === "NoSuchKey") return null;
+    if ((e as { name?: string }).name === "NoSuchKey") {
+      logInfo("memory.load_raw.not_found", "memoryService.loadRaw", {
+        userId,
+        durationMs: getElapsed(),
+      });
+      return null;
+    }
+    logError("memory.load_raw.failed", "memoryService.loadRaw", e, {
+      userId,
+      durationMs: getElapsed(),
+    });
     throw e;
   }
 }
 
 export async function loadMemories(userId: string): Promise<LoadedMemories> {
+  const getElapsed = startTimer();
   const raw = await loadRaw(userId);
-  if (!raw) return { profile: null, memories: null };
+  if (!raw) {
+    logInfo("memory.load.completed", "memoryService.loadMemories", {
+      userId,
+      durationMs: getElapsed(),
+      hasProfile: false,
+      hasMemories: false,
+    });
+    return { profile: null, memories: null };
+  }
 
   const { profile, rest } = extractProfile(raw);
+  logInfo("memory.load.completed", "memoryService.loadMemories", {
+    userId,
+    durationMs: getElapsed(),
+    hasProfile: Boolean(profile),
+    hasMemories: Boolean(rest),
+    memoryChars: rest.length,
+    profileChars: profile?.length ?? 0,
+  });
   return { profile, memories: rest || null };
 }
 
@@ -122,6 +158,7 @@ export async function saveMemory(
   summary: string,
   profileUpdates?: Record<string, string>,
 ): Promise<void> {
+  const getElapsed = startTimer();
   const raw = await loadRaw(userId);
   const { profile: existingProfile, rest } = raw
     ? extractProfile(raw)
@@ -153,6 +190,15 @@ export async function saveMemory(
       ContentType: "text/plain; charset=utf-8",
     }),
   );
+  logInfo("memory.save.completed", "memoryService.saveMemory", {
+    userId,
+    durationMs: getElapsed(),
+    summaryChars: summary.length,
+    profileUpdateCount: Object.keys(profileUpdates ?? {}).length,
+    recentSectionCount: updatedRecent.length,
+    hasLongTermMemory: Boolean(updatedLongTerm),
+    totalChars: finalText.length,
+  });
 }
 
 export function trimMemoriesForPrompt(memories: string): string {
