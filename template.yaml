@@ -27,6 +27,18 @@ Parameters:
     Type: String
     Default: ""
     NoEcho: true
+  MemoryPromptMaxFacts:
+    Type: Number
+    Default: 6
+    Description: "Max number of memory facts injected into AI prompt"
+  MemoryPromptMaxEpisodes:
+    Type: Number
+    Default: 2
+    Description: "Max number of memory episodes injected into AI prompt"
+  MemoryPromptMaxChars:
+    Type: Number
+    Default: 1400
+    Description: "Max characters for injected memory block"
 
 Globals:
   Function:
@@ -64,6 +76,9 @@ Resources:
           ANTHROPIC_API_KEY: !Ref AnthropicApiKey
           TAVILY_API_KEY: !Ref TavilyApiKey
           MEMORY_BUCKET: !Ref MemoryBucket
+          MEMORY_PROMPT_MAX_FACTS: !Ref MemoryPromptMaxFacts
+          MEMORY_PROMPT_MAX_EPISODES: !Ref MemoryPromptMaxEpisodes
+          MEMORY_PROMPT_MAX_CHARS: !Ref MemoryPromptMaxChars
       Policies:
         - S3CrudPolicy:
             BucketName: !Ref MemoryBucket
