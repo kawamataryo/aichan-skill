@@ -2,7 +2,7 @@ import Alexa from "ask-sdk-core";
 import type { RequestHandler } from "ask-sdk-core";
 import { loadMemories, parseProfile, trimMemoriesForPrompt } from "../memory/memoryService";
 import { fastSpeech, randomGreeting } from "../speech";
-import { getUserId } from "../util/getUserId";
+import { getUserId, hasPersonId } from "../util/getUserId";
 import { logError, logInfo, startTimer } from "../util/structuredLogger";
 
 function extractDisplayNameFromProfile(profileText: string | null): string | null {
@@ -42,7 +42,31 @@ export const LaunchRequestHandler: RequestHandler = {
     if (loaded.memoryPayload) {
       attributes.memoryPayload = loaded.memoryPayload;
     }
+
+    const hasPerson = hasPersonId(handlerInput.requestEnvelope);
+    const needsProfileOnboarding = hasPerson && (!loaded.memories || !loaded.profile);
+    if (needsProfileOnboarding) {
+      attributes.needsProfileOnboarding = true;
+    }
+
     handlerInput.attributesManager.setSessionAttributes(attributes);
+
+    if (needsProfileOnboarding) {
+      const onboardingPrompt =
+        "はじめまして。あいちゃんだよ。あなたのことを覚えたいので、呼び名と年齢を教えてくれる？例えば「たろう、30歳だよ」みたいに話してね。";
+      logInfo("launch.profile_onboarding_required", "LaunchRequestHandler", {
+        userId,
+        durationMs: getElapsed(),
+        memoryLoadDurationMs: loadDurationMs,
+        hasPersonId: hasPerson,
+        hasMemories: Boolean(loaded.memories),
+        hasProfile: Boolean(loaded.profile),
+      });
+      return handlerInput.responseBuilder
+        .speak(fastSpeech(onboardingPrompt))
+        .reprompt(fastSpeech(onboardingPrompt))
+        .getResponse();
+    }
 
     const displayName = extractDisplayNameFromProfile(loaded.profile);
     const speechText = displayName ? `${displayName}、${randomGreeting()}` : randomGreeting();

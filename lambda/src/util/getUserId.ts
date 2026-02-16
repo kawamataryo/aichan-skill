@@ -2,6 +2,10 @@ import type { RequestEnvelope } from "ask-sdk-model";
 
 const FALLBACK_ID = "_shared";
 
+export function hasPersonId(requestEnvelope: RequestEnvelope): boolean {
+  return Boolean(requestEnvelope.context.System.person?.personId);
+}
+
 export function getUserId(requestEnvelope: RequestEnvelope): string {
   const personId = requestEnvelope.context.System.person?.personId;
   if (personId) return personId;
