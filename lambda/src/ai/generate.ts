@@ -112,7 +112,7 @@ export async function generateAIResponse(
 
   let shouldEndSession = false;
 
-  let systemPrompt = buildSystemPrompt();
+  let systemPrompt = buildSystemPrompt(profile);
   const selectedMemory = buildMemoryContext(query, memoryPayload) ?? memories ?? null;
   if (profile) {
     systemPrompt += `\n\n## ユーザープロファイル\n${profile}`;
