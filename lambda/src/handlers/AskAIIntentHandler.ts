@@ -8,6 +8,7 @@ import { getUserId } from "../util/getUserId";
 
 import { fastSpeech, randomFarewell } from "../speech";
 import { logError, logInfo, startTimer } from "../util/structuredLogger";
+import { isFillerOnly } from "../util/isFillerOnly";
 
 const MAX_HISTORY_TURNS = 5;
 
@@ -23,6 +24,20 @@ export const AskAIIntentHandler: RequestHandler = {
     const query = Alexa.getSlotValue(handlerInput.requestEnvelope, "query") ?? "";
     const attributes = handlerInput.attributesManager.getSessionAttributes();
     const userId: string = attributes.userId ?? getUserId(handlerInput.requestEnvelope);
+
+    if (isFillerOnly(query)) {
+      logInfo("ask_ai.filler_only_blocked", "AskAIIntentHandler", {
+        userId,
+        durationMs: getElapsed(),
+        queryChars: query.length,
+      });
+      const silentSsml = fastSpeech('<break time="1ms"/>');
+      return handlerInput.responseBuilder
+        .speak(silentSsml)
+        .reprompt(silentSsml)
+        .withShouldEndSession(false)
+        .getResponse();
+    }
 
     const conversationHistory: Array<{ role: "user" | "assistant"; content: string }> =
       attributes.conversationHistory ?? [];
